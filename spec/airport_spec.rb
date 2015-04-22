@@ -21,6 +21,7 @@ describe Airport do
     before do
       allow(plane).to receive :land!
       allow(plane).to receive :take_off
+      allow(airport).to receive(:weather).and_return "Sunny"
     end
 
     it 'can land a plane' do
@@ -44,11 +45,14 @@ describe Airport do
       expect(plane).to receive :take_off
       airport.take_off(plane)
     end
-  
 
   end
 
   context 'traffic control' do
+
+    before {
+      allow(airport).to receive(:weather).and_return "Sunny"
+    }
 
     it 'can have a capacity' do
       expect(airport.capacity).to eq(20)
@@ -60,22 +64,13 @@ describe Airport do
       expect { airport.land(plane) }.to raise_error "Airport full" 
     end
 
-
-    # Include a weather condition.
-    # The weather must be random and only have two states "sunny" or "stormy".
-    # Try and take off a plane, but if the weather is stormy,
-    # the plane can not take off and must remain in the airport.
-    #
-    # This will require stubbing to stop the random return of the weather.
-    # If the airport has a weather condition of stormy,
-    # the plane can not land, and must not be in the airport
-
     context 'weather conditions' do
       it 'a plane cannot take off when there is a storm brewing' do
         allow(plane).to receive :land!
+        allow(airport).to receive(:weather).and_return "Sunny"
         airport.land(plane)
         allow(airport).to receive(:weather).and_return "Stormy"
-        expect{ airport.take_off(plane)}.to raise_error "There is a storm"
+        expect{ airport.take_off(plane)}.to raise_error "Cannot take_off, there is a storm"
       end
 
       it 'a plane cannot land in the middle of a storm' do
